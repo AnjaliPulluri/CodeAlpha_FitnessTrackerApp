@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fitness Tracker App</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f0f2f5;
+            text-align: center;
+        }
+
+        .container {
+            width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        input, button {
+            margin: 5px;
+            padding: 8px;
+            width: 90%;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        ul {
+            text-align: left;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background: #ddd;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .progress {
+            height: 20px;
+            background: green;
+            width: 0%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Fitness Tracker App</h2>
+
+    <input type="text" id="activity" placeholder="Activity (Running)">
+    <input type="number" id="calories" placeholder="Calories Burned">
+    <input type="date" id="date">
+
+    <button onclick="addData()">Add Activity</button>
+    <button onclick="clearAll()">Clear All</button>
+
+    <h3>Total Calories: <span id="total">0</span></h3>
+
+    <h4>Daily Goal: 500 Calories</h4>
+
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <ul id="list"></ul>
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("fitnessData")) || [];
+
+function saveData() {
+    localStorage.setItem("fitnessData", JSON.stringify(data));
+}
+
+function displayData() {
+    let list = document.getElementById("list");
+    list.innerHTML = "";
+
+    let total = 0;
+
+    data.forEach((item, index) => {
+        total += item.calories;
+
+        let li = document.createElement("li");
+        li.innerHTML = `${item.activity} - ${item.calories} cal (${item.date})
+        <button onclick="deleteItem(${index})">❌</button>`;
+        list.appendChild(li);
+    });
+
+    document.getElementById("total").innerText = total;
+
+    // Progress bar logic (goal = 500)
+    let percent = (total / 500) * 100;
+    if (percent > 100) percent = 100;
+
+    document.getElementById("progress").style.width = percent + "%";
+}
+
+function addData() {
+    let activity = document.getElementById("activity").value;
+    let calories = document.getElementById("calories").value;
+    let date = document.getElementById("date").value;
+
+    if (activity === "" || calories === "" || date === "") {
+        alert("Please fill all fields");
+        return;
+    }
+
+    data.push({
+        activity: activity,
+        calories: Number(calories),
+        date: date
+    });
+
+    saveData();
+    displayData();
+
+    document.getElementById("activity").value = "";
+    document.getElementById("calories").value = "";
+    document.getElementById("date").value = "";
+}
+
+function deleteItem(index) {
+    data.splice(index, 1);
+    saveData();
+    displayData();
+}
+
+function clearAll() {
+    data = [];
+    saveData();
+    displayData();
+}
+
+displayData();
+</script>
+
+</body>
+</html>
